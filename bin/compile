@@ -22,7 +22,7 @@ export_env_dir() {
   if [ -d "$env_dir" ]; then
     
     for e in $(ls $env_dir); do     
-      echo $e=$(cat $env_dir/$e)
+      echo "ENV "$e
       echo "$e" | grep -E "$whitelist_regex" | grep -qvE "$blacklist_regex" &&
     export "$e=$(cat $env_dir/$e)"
     :
@@ -33,11 +33,9 @@ export_env_dir() {
 
 export_env_dir $ENV_DIR
 
-echo "TESTING D"
-
 buildpack_run=./buildpack-run.sh
 
-echo "TESTING F"
+echo "Run init..."
 
 # Source each of the colon-delimited files
 IFS=':' files=($buildpack_run)
