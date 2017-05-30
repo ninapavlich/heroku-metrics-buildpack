@@ -1,0 +1,128 @@
+#!/bin/sh
+
+indent() {
+  sed -u 's/^/       /'
+}
+
+BUILD_DIR=$1
+CACHE_DIR=$2
+ENV_DIR=$3
+
+#####################################
+# Run Custom Compile Command ########
+#####################################
+
+cd "$BUILD_DIR"
+
+# Load config vars into environment
+export_env_dir() {
+  env_dir=$1
+  whitelist_regex=${2:-''}
+  blacklist_regex=${3:-'^(PATH|GIT_DIR|CPATH|CPPATH|LD_PRELOAD|LIBRARY_PATH|JAVA_OPTS)$'}
+  if [ -d "$env_dir" ]; then
+  
+    for e in $(ls $env_dir); do     
+
+      echo "$e" | grep -E "$whitelist_regex" | grep -qvE "$blacklist_regex" &&
+    export "$e=$(cat $env_dir/$e)"
+    :
+
+    done
+  fi
+}
+
+export_env_dir $ENV_DIR
+
+# If config var BUILDPACK_RUN exists, take its content as the file(s) to source
+if [[ -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
+  buildpack_run=$(cat "$ENV_DIR/BUILDPACK_RUN")
+# Otherwise, if buildpack-run.sh exists, take it as the file to source
+elif [[ -f ./buildpack-run.sh ]]; then
+  buildpack_run=./buildpack-run.sh
+# If neither exists, abort the build
+else
+  echo "Error: can't apply the buildpack because neither buildpack-run.sh" | i
+  echo "exists, nor the BUILDPACK_RUN config variable is set." | i
+  echo
+  exit 1
+fi
+
+# Source each of the colon-delimited files
+IFS=':' files=($buildpack_run)
+for i in ${!files[@]}; do
+  echo "Sourcing ${files[$i]}" | sed 's/^/-----> /'
+  source "${files[$i]}"
+done
+
+
+#####################################
+# Kibana Initialization #############
+#####################################
+
+INIT_SCRIPT="$BUILD_DIR/.profile.d/kibana.sh"
+
+if [ -f "$ENV_DIR/ELASTICSEARCH_URL" ]; then
+  ELASTICSEARCH_URL="$(cat $ENV_DIR/ELASTICSEARCH_URL):443"
+elif [ -f "$ENV_DIR/BONSAI_URL" ]; then
+  ELASTICSEARCH_URL="$(cat $ENV_DIR/BONSAI_URL):443"
+else
+  ELASTICSEARCH_URL="http://localhost:9200"
+fi
+
+if [ -f "$ENV_DIR/DOWNLOAD_URL" ]; then
+  DOWNLOAD_URL=$(cat $ENV_DIR/DOWNLOAD_URL)
+else
+  DOWNLOAD_URL="https://artifacts.elastic.co/downloads/kibana/kibana-5.3.0-linux-x86_64.tar.gz"
+fi
+
+KIBANA_PACKAGE=${DOWNLOAD_URL##*/}
+echo $KIBANA_PACKAGE
+
+case ${KIBANA_PACKAGE} in
+  *.tar.gz)
+    KIBANA_DIR="$BUILD_DIR/${KIBANA_PACKAGE%%.tar.gz}"
+    tar="tar xz"
+    ;;
+  *)
+    echo "Only tar.gz is supported: $KIBANA_PACKAGE" | indent
+    exit 1
+    ;;
+esac
+
+mkdir="mkdir -p"
+download="curl -sLO"
+extract="$tar -C $BUILD_DIR --wildcards -f"
+verify="sha1sum --check --warn"
+configure='sed -i s/^\x23\x20\(elasticsearch.url:\x20\).\{1,\}/\1"'$(echo $ELASTICSEARCH_URL | sed 's/\//\\\//g')'"/'
+
+
+echo "-----> Installing Kibana..."
+
+$mkdir ${INIT_SCRIPT%/*}
+$mkdir $CACHE_DIR
+
+if [ ! -f "$CACHE_DIR/$KIBANA_PACKAGE" ]; then
+  echo "downloading $DOWNLOAD_URL" | indent
+  $download $DOWNLOAD_URL
+
+  echo "verifying against ${DOWNLOAD_URL}.sha1" | indent
+  $download "${DOWNLOAD_URL}.sha1"
+
+  #Currently ES is not sending a valid sha1 file format
+  #for f in *.sha1; do echo "$(cat $f) ${f/.sha1/}"; done | sha1sum -c
+  #$verify "${KIBANA_PACKAGE}.sha1"
+
+  if [ $? -eq 0 ]; then
+    mv $KIBANA_PACKAGE $CACHE_DIR
+  else
+    exit 1
+  fi
+fi
+
+$extract $CACHE_DIR/$KIBANA_PACKAGE
+
+echo "-----> Configuring ELASTICSEARCH_URL"
+$configure $KIBANA_DIR/config/kibana.yml
+
+echo "Exporting PATH" | indent
+echo 'export PATH="$PATH:'${KIBANA_DIR##*/}'/bin"' > $INIT_SCRIPT
