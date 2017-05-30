@@ -33,11 +33,18 @@ export_env_dir() {
 
 export_env_dir $ENV_DIR
 
-echo "Running python init_configs.py..."
+echo "TESTING D"
 
-python init_configs.py
+buildpack_run=./buildpack-run.sh
 
-echo "TESTING E"
+echo "TESTING F"
+
+# Source each of the colon-delimited files
+IFS=':' files=($buildpack_run)
+for i in ${!files[@]}; do
+  echo "Sourcing ${files[$i]}" | sed 's/^/-----> /'
+  source "${files[$i]}"
+done
 
 
 #####################################
