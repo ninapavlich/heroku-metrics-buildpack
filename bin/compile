@@ -12,20 +12,17 @@ ENV_DIR=$3
 # Run Custom Compile Command ########
 #####################################
 
-echo "TESTING A"
 cd "$BUILD_DIR"
 
 # Load config vars into environment
 export_env_dir() {
-  echo "TESTING B"
   env_dir=$1
   whitelist_regex=${2:-''}
   blacklist_regex=${3:-'^(PATH|GIT_DIR|CPATH|CPPATH|LD_PRELOAD|LIBRARY_PATH|JAVA_OPTS)$'}
   if [ -d "$env_dir" ]; then
     
-    echo $env_dir
     for e in $(ls $env_dir); do     
-      echo $e
+      echo $e=$(cat $env_dir/$e)
       echo "$e" | grep -E "$whitelist_regex" | grep -qvE "$blacklist_regex" &&
     export "$e=$(cat $env_dir/$e)"
     :
@@ -34,30 +31,13 @@ export_env_dir() {
   fi
 }
 
-echo "TESTING C"
 export_env_dir $ENV_DIR
 
-echo "TESTING D"
-# If config var BUILDPACK_RUN exists, take its content as the file(s) to source
-if [[ -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
-  buildpack_run=$(cat "$ENV_DIR/BUILDPACK_RUN")
-# Otherwise, if buildpack-run.sh exists, take it as the file to source
-elif [[ -f ./buildpack-run.sh ]]; then
-  buildpack_run=./buildpack-run.sh
-# If neither exists, abort the build
-else
-  echo "Error: can't apply the buildpack because neither buildpack-run.sh" | i
-  echo "exists, nor the BUILDPACK_RUN config variable is set." | i
-  echo
-  exit 1
-fi
+echo "Running python init_configs.py..."
 
-# Source each of the colon-delimited files
-IFS=':' files=($buildpack_run)
-for i in ${!files[@]}; do
-  echo "Sourcing ${files[$i]}" | sed 's/^/-----> /'
-  source "${files[$i]}"
-done
+python init_configs.py
+
+echo "TESTING E"
 
 
 #####################################
