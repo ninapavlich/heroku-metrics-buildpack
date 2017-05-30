@@ -12,10 +12,12 @@ ENV_DIR=$3
 # Run Custom Compile Command ########
 #####################################
 
+echo "TESTING A"
 cd "$BUILD_DIR"
 
 # Load config vars into environment
 export_env_dir() {
+  echo "TESTING B"
   env_dir=$1
   whitelist_regex=${2:-''}
   blacklist_regex=${3:-'^(PATH|GIT_DIR|CPATH|CPPATH|LD_PRELOAD|LIBRARY_PATH|JAVA_OPTS)$'}
@@ -31,8 +33,10 @@ export_env_dir() {
   fi
 }
 
+echo "TESTING C"
 export_env_dir $ENV_DIR
 
+echo "TESTING D"
 # If config var BUILDPACK_RUN exists, take its content as the file(s) to source
 if [[ -f "$ENV_DIR/BUILDPACK_RUN" ]]; then
   buildpack_run=$(cat "$ENV_DIR/BUILDPACK_RUN")

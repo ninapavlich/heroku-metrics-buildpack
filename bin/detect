@@ -1,4 +1,4 @@
 #!/bin/sh
 
-echo "kibana"
+echo "Kibana + Elastalert"
 exit 0
