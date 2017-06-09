@@ -34,6 +34,68 @@ export_env_dir() {
 export_env_dir $ENV_DIR
 
 #####################################
+# Logstash Initialization ###########
+#####################################
+INIT_SCRIPT="$BUILD_DIR/.profile.d/logstash.sh"
+
+if [ -f "$ENV_DIR/BONSAI_URL" ]; then
+  ELASTICSEARCH_URL=$(cat $ENV_DIR/BONSAI_URL)
+elif [ -f "$ENV_DIR/ELASTICSEARCH_URL" ]; then
+  ELASTICSEARCH_URL=$(cat $ENV_DIR/ELASTICSEARCH_URL)
+else
+  ELASTICSEARCH_URL="http://localhost:9200"
+fi
+
+if [ -f "$ENV_DIR/DOWNLOAD_URL" ]; then
+  DOWNLOAD_URL=$(cat $ENV_DIR/DOWNLOAD_URL)
+else
+  DOWNLOAD_URL="https://download.elastic.co/logstash/logstash/logstash-2.3.1.tar.gz"
+fi
+
+LOGSTASH_PACKAGE=${DOWNLOAD_URL##*/}
+
+case ${LOGSTASH_PACKAGE} in
+  *.tar.gz)
+    LOGSTASH_DIR="$BUILD_DIR/${LOGSTASH_PACKAGE%%.tar.gz}"
+    tar="tar xz"
+    ;;
+  *)
+    echo "Only tar.gz is supported: $LOGSTASH_PACKAGE" | indent
+    exit 1
+    ;;
+esac
+
+mkdir="mkdir -p"
+download="curl -sLO"
+extract="$tar -C $BUILD_DIR --wildcards -f"
+verify="sha1sum --check --warn"
+
+echo "-----> Installing Logstash..."
+
+$mkdir ${INIT_SCRIPT%/*}
+$mkdir $CACHE_DIR
+
+if [ ! -f "$CACHE_DIR/$LOGSTASH_PACKAGE" ]; then
+  echo "downloading $DOWNLOAD_URL" | indent
+  $download $DOWNLOAD_URL
+
+  echo "verifying against ${DOWNLOAD_URL}.sha1.txt" | indent
+  $download "${DOWNLOAD_URL}.sha1.txt"
+  $verify "${LOGSTASH_PACKAGE}.sha1.txt"
+
+  if [ $? -eq 0 ]; then
+    mv $LOGSTASH_PACKAGE $CACHE_DIR
+  else
+    exit 1
+  fi
+fi
+
+$extract $CACHE_DIR/$LOGSTASH_PACKAGE
+
+echo "Exporting PATH" | indent
+echo 'export PATH="$PATH:'${LOGSTASH_DIR##*/}'/bin"' > $INIT_SCRIPT
+
+#####################################
 # Kibana Initialization #############
 #####################################
 

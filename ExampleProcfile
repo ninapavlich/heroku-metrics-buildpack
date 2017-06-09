@@ -1,0 +1,3 @@
+web: kibana -c kibana.yml --port $PORT
+worker: python manage.py alerter
+worker: python manage.py logger

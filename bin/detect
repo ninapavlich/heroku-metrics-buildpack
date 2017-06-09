@@ -1,4 +1,4 @@
 #!/bin/sh
 
-echo "Kibana + Elastalert"
+echo "Kibana + Logstash + Elastalert"
 exit 0
