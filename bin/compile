@@ -141,6 +141,7 @@ echo "-----> Installing Kibana..."
 $mkdir ${INIT_SCRIPT%/*}
 $mkdir $CACHE_DIR
 
+
 if [ ! -f "$CACHE_DIR/$KIBANA_PACKAGE" ]; then
   echo "downloading $DOWNLOAD_URL" | indent
   $download $DOWNLOAD_URL
@@ -163,6 +164,10 @@ $extract $CACHE_DIR/$KIBANA_PACKAGE
 
 echo "-----> Configuring ELASTICSEARCH_URL"
 $configure $KIBANA_DIR/config/kibana.yml
+echo $KIBANA_DIR
 
 echo "Exporting PATH" | indent
 echo 'export PATH="$PATH:'${KIBANA_DIR##*/}'/bin"' > $INIT_SCRIPT
+
+echo "PATH:"
+echo $PATH
