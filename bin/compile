@@ -171,3 +171,10 @@ echo 'export PATH="$PATH:'${KIBANA_DIR##*/}'/bin"' > $INIT_SCRIPT
 
 echo "PATH:"
 echo $PATH
+
+#####################################
+# MISC Initialization ###############
+#####################################
+
+#Run arbitrary compile script in app
+sh compile.sh
