@@ -14,6 +14,9 @@ ENV_DIR=$3
 
 cd "$BUILD_DIR"
 
+
+
+
 # Load config vars into environment
 export_env_dir() {
   env_dir=$1
@@ -22,7 +25,7 @@ export_env_dir() {
   if [ -d "$env_dir" ]; then
     
     for e in $(ls $env_dir); do     
-      echo "ENV "$e
+      echo $e
       echo "$e" | grep -E "$whitelist_regex" | grep -qvE "$blacklist_regex" &&
     export "$e=$(cat $env_dir/$e)"
     :
@@ -31,6 +34,7 @@ export_env_dir() {
   fi
 }
 
+echo "Using Environment Variables:"
 export_env_dir $ENV_DIR
 
 #####################################
