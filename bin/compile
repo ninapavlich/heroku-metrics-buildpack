@@ -79,9 +79,10 @@ if [ ! -f "$CACHE_DIR/$LOGSTASH_PACKAGE" ]; then
   echo "downloading $DOWNLOAD_URL" | indent
   $download $DOWNLOAD_URL
 
-  echo "verifying against ${DOWNLOAD_URL}.sha1" | indent
-  $download "${DOWNLOAD_URL}.sha1"
-  $verify "${LOGSTASH_PACKAGE}.sha1"
+  echo "WARNING: Currently ES is not sending a valid sha1 file format."
+  echo "Skipping SHA verification for ${DOWNLOAD_URL}.sha1" | indent
+  #$download "${DOWNLOAD_URL}.sha1"
+  #$verify "${LOGSTASH_PACKAGE}.sha1"
 
   if [ $? -eq 0 ]; then
     mv $LOGSTASH_PACKAGE $CACHE_DIR
