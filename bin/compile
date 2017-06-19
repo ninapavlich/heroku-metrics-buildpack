@@ -46,13 +46,13 @@ else
   ELASTICSEARCH_URL="http://localhost:9200"
 fi
 
-if [ -f "$ENV_DIR/DOWNLOAD_URL" ]; then
-  DOWNLOAD_URL=$(cat $ENV_DIR/DOWNLOAD_URL)
+if [ -f "$ENV_DIR/LOGSTASH_DOWNLOAD_URL" ]; then
+  LOGSTASH_DOWNLOAD_URL=$(cat $ENV_DIR/LOGSTASH_DOWNLOAD_URL)
 else
-  DOWNLOAD_URL="https://download.elastic.co/logstash/logstash/logstash-2.3.1.tar.gz"
+  LOGSTASH_DOWNLOAD_URL="https://download.elastic.co/logstash/logstash/logstash-2.3.1.tar.gz"
 fi
 
-LOGSTASH_PACKAGE=${DOWNLOAD_URL##*/}
+LOGSTASH_PACKAGE=${LOGSTASH_DOWNLOAD_URL##*/}
 
 case ${LOGSTASH_PACKAGE} in
   *.tar.gz)
@@ -76,12 +76,12 @@ $mkdir ${INIT_SCRIPT%/*}
 $mkdir $CACHE_DIR
 
 if [ ! -f "$CACHE_DIR/$LOGSTASH_PACKAGE" ]; then
-  echo "downloading $DOWNLOAD_URL" | indent
-  $download $DOWNLOAD_URL
+  echo "downloading $LOGSTASH_PACKAGE" | indent
+  $download $LOGSTASH_PACKAGE
 
   echo "WARNING: Currently ES is not sending a valid sha1 file format."
-  echo "Skipping SHA verification for ${DOWNLOAD_URL}.sha1" | indent
-  #$download "${DOWNLOAD_URL}.sha1"
+  echo "Skipping SHA verification for ${LOGSTASH_PACKAGE}.sha1" | indent
+  #$download "${LOGSTASH_PACKAGE}.sha1"
   #$verify "${LOGSTASH_PACKAGE}.sha1"
 
   if [ $? -eq 0 ]; then
@@ -110,13 +110,13 @@ else
   ELASTICSEARCH_URL="http://localhost:9200"
 fi
 
-if [ -f "$ENV_DIR/DOWNLOAD_URL" ]; then
-  DOWNLOAD_URL=$(cat $ENV_DIR/DOWNLOAD_URL)
+if [ -f "$ENV_DIR/KIBANA_DOWNLOAD_URL" ]; then
+  KIBANA_DOWNLOAD_URL=$(cat $ENV_DIR/KIBANA_DOWNLOAD_URL)
 else
-  DOWNLOAD_URL="https://artifacts.elastic.co/downloads/kibana/kibana-5.3.0-linux-x86_64.tar.gz"
+  KIBANA_DOWNLOAD_URL="https://artifacts.elastic.co/downloads/kibana/kibana-5.3.0-linux-x86_64.tar.gz"
 fi
 
-KIBANA_PACKAGE=${DOWNLOAD_URL##*/}
+KIBANA_PACKAGE=${KIBANA_DOWNLOAD_URL##*/}
 echo $KIBANA_PACKAGE
 
 case ${KIBANA_PACKAGE} in
@@ -144,15 +144,13 @@ $mkdir $CACHE_DIR
 
 
 if [ ! -f "$CACHE_DIR/$KIBANA_PACKAGE" ]; then
-  echo "downloading $DOWNLOAD_URL" | indent
-  $download $DOWNLOAD_URL
+  echo "downloading $KIBANA_DOWNLOAD_URL" | indent
+  $download $KIBANA_DOWNLOAD_URL
 
-  echo "verifying against ${DOWNLOAD_URL}.sha1" | indent
-  $download "${DOWNLOAD_URL}.sha1"
-
-  #Currently ES is not sending a valid sha1 file format
-  #for f in *.sha1; do echo "$(cat $f) ${f/.sha1/}"; done | sha1sum -c
-  #$verify "${KIBANA_PACKAGE}.sha1"
+  echo "WARNING: Currently ES is not sending a valid sha1 file format."
+  echo "Skipping SHA verification for ${KIBANA_DOWNLOAD_URL}.sha1" | indent
+  #$download "${KIBANA_DOWNLOAD_URL}.sha1"
+  #$verify "${KIBANA_DOWNLOAD_URL}.sha1"
 
   if [ $? -eq 0 ]; then
     mv $KIBANA_PACKAGE $CACHE_DIR
