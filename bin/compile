@@ -79,7 +79,7 @@ if [ ! -f "$CACHE_DIR/$LOGSTASH_PACKAGE" ]; then
   echo "downloading $DOWNLOAD_URL" | indent
   $download $DOWNLOAD_URL
 
-  echo "verifying against ${DOWNLOAD_URL}.sha1.txt" | indent
+  echo "verifying against ${DOWNLOAD_URL}.sha1" | indent
   $download "${DOWNLOAD_URL}.sha1.txt"
   $verify "${LOGSTASH_PACKAGE}.sha1.txt"
 
