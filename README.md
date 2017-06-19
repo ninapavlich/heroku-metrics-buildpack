@@ -5,10 +5,12 @@ Heroku buildpack for running Kibana 5, Logstash and ElastAlert
 ## Installation Notes:
 
 Specify a Kibana package version that matches the Elasticsearch version you're using:
-> heroku config:set KIBANA_DOWNLOAD_URL="https://artifacts.elastic.co/downloads/kibana/kibana-5.1.1-linux-x86_64.tar.gz"
+
+	heroku config:set KIBANA_DOWNLOAD_URL="https://artifacts.elastic.co/downloads/kibana/kibana-5.1.1-linux-x86_64.tar.gz"
 
 Optional: Specify a logstash package version. (2.3.1 will be used by default)
-> heroku config:set LOGSTASH_DOWNLOAD_URL="https://download.elastic.co/logstash/logstash/logstash-2.3.1.tar.gz"
+
+	heroku config:set LOGSTASH_DOWNLOAD_URL="https://download.elastic.co/logstash/logstash/logstash-2.3.1.tar.gz"
 
 ## Heroku + Elasticsearch Caveats:
 

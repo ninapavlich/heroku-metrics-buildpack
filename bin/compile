@@ -77,11 +77,11 @@ $mkdir $CACHE_DIR
 
 if [ ! -f "$CACHE_DIR/$LOGSTASH_PACKAGE" ]; then
   echo "downloading $LOGSTASH_PACKAGE" | indent
-  $download $LOGSTASH_PACKAGE
+  $download $LOGSTASH_DOWNLOAD_URL
 
   echo "WARNING: Currently ES is not sending a valid sha1 file format."
-  echo "Skipping SHA verification for ${LOGSTASH_PACKAGE}.sha1" | indent
-  #$download "${LOGSTASH_PACKAGE}.sha1"
+  echo "Skipping SHA verification for ${LOGSTASH_DOWNLOAD_URL}.sha1" | indent
+  #$download "${LOGSTASH_DOWNLOAD_URL}.sha1"
   #$verify "${LOGSTASH_PACKAGE}.sha1"
 
   if [ $? -eq 0 ]; then
@@ -117,7 +117,6 @@ else
 fi
 
 KIBANA_PACKAGE=${KIBANA_DOWNLOAD_URL##*/}
-echo $KIBANA_PACKAGE
 
 case ${KIBANA_PACKAGE} in
   *.tar.gz)
@@ -136,7 +135,6 @@ extract="$tar -C $BUILD_DIR --wildcards -f"
 verify="sha1sum --check --warn"
 configure='sed -i s/^\x23\x20\(elasticsearch.url:\x20\).\{1,\}/\1"'$(echo $ELASTICSEARCH_URL | sed 's/\//\\\//g')'"/'
 
-
 echo "-----> Installing Kibana..."
 
 $mkdir ${INIT_SCRIPT%/*}
@@ -150,7 +148,7 @@ if [ ! -f "$CACHE_DIR/$KIBANA_PACKAGE" ]; then
   echo "WARNING: Currently ES is not sending a valid sha1 file format."
   echo "Skipping SHA verification for ${KIBANA_DOWNLOAD_URL}.sha1" | indent
   #$download "${KIBANA_DOWNLOAD_URL}.sha1"
-  #$verify "${KIBANA_DOWNLOAD_URL}.sha1"
+  #$verify "${KIBANA_PACKAGE}.sha1"
 
   if [ $? -eq 0 ]; then
     mv $KIBANA_PACKAGE $CACHE_DIR
