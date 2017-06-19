@@ -94,8 +94,8 @@ fi
 $extract $CACHE_DIR/$LOGSTASH_PACKAGE
 
 echo $LOGSTASH_DIR
-logstash_plugins="${LOGSTASH_DIR##*/}/bin/logstash-plugin install contrib"
-echo "Installing Logstash Contrib plugins..."
+logstash_plugins="${LOGSTASH_DIR##*/}/bin/logstash-plugin install logstash-input-heroku"
+echo "Installing Logstash Heroku Contrib plugin..."
 $logstash_plugins
 
 echo "Exporting PATH" | indent
