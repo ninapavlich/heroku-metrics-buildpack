@@ -26,3 +26,4 @@ I needed to adjust a few of my Kibana settings to properly to connect to Bonsai 
 	# I needed to provide the username and password from the URL above:
 	elasticsearch.username: "<BONSAI USERNAME>"
 	elasticsearch.password: "<BONSAI PASSWORD>"
+
