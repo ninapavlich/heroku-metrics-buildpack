@@ -1,5 +1,5 @@
 # heroku-metrics-buildpack
-Heroku buildpack for running Kibana 5, Logstash and ElastAlert
+Heroku buildpack for running Kibana 5, X-Pack, Logstash and ElastAlert
 
 
 ## Installation Notes:

@@ -178,6 +178,13 @@ echo 'export PATH="$PATH:'${KIBANA_DIR##*/}'/bin"' > $INIT_SCRIPT
 echo "PATH:"
 echo $PATH
 
+kibana_plugin=${KIBANA_DIR##*/}'/bin/kibana-plugin' 
+echo $kibana_plugin
+xpack="x-pack"
+echo $xpack
+$kibana_plugin install $xpack
+
+
 #####################################
 # MISC Initialization ###############
 #####################################
